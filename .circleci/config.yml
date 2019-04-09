@@ -13,7 +13,7 @@ jobs:
           command: docker build -t $IMAGE_NAME:latest .
   publish-latest:
     environment:
-      IMAGE_NAME: tracer
+      IMAGE_NAME: rohit6899/tracer
     docker:
       - image: circleci/buildpack-deps:stretch
     steps:
