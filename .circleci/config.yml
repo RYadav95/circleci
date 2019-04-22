@@ -37,7 +37,7 @@
                 echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                 export DATESTAMP=$(date +%Y%m%d)
                 IMAGE_TAG=${CIRCLE_TAG/v/''}
-                docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+                docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:$IMAGE_TAG
                 docker tag $IMAGE_NAME:latest $IMAGE_NAME:${IMAGE_TAG}-${DATESTAMP}
                 docker push $IMAGE_NAME:latest
                 docker push $IMAGE_NAME:$IMAGE_TAG
@@ -55,6 +55,9 @@
           - run:
               name: Publish Docker Image to IBM registry
               command: |
+                IMAGE_TAG=${CIRCLE_TAG/v/''}
+                echo "${IBM_API_KEY}" | docker login -u iamapikey --password-stdin icr.io
+                export DATESTAMP=$(date +%Y%m%d)
                 echo "Hello World"            
     workflows:
       version: 2
