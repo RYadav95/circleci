@@ -11,6 +11,8 @@
         steps:
           - checkout
           - setup_remote_docker
+          - run: mkdir -p workspace
+          - run: echo "export DATESTAMP=$(date +%Y%m%d)" > workspace/env-vars
           - run:
               name: Build Docker image
               command: |
@@ -19,15 +21,17 @@
               name: Archive Docker image
               command: docker save -o image.tar $IMAGE_NAME
           - persist_to_workspace:
-              root: .
+              root: workspace
               paths:
-                - ./image.tar
+                - image.tar
+                - env-vars
       publish-tag:
         executor: docker-publisher
         steps:
           - attach_workspace:
               at: /tmp/workspace
           - setup_remote_docker
+          - run: cat workspace/env-vars >> $BASH_ENV
           - run:
               name: Load archived Docker image
               command: docker load -i /tmp/workspace/image.tar
@@ -37,8 +41,10 @@
                 echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                 IMAGE_TAG=${CIRCLE_TAG/v/''}
                 docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+                docker tag $IMAGE_NAME:latest $IMAGE_NAME:${IMAGE_TAG}-${DATESTAMP}
                 docker push $IMAGE_NAME:latest
-                docker push $IMAGE_NAME:$IMAGE_TAG  
+                docker push $IMAGE_NAME:$IMAGE_TAG
+                docker push $IMAGE_NAME:$IMAGE_TAG-${DATESTAMP}  
     workflows:
       version: 2
       build-tags:
