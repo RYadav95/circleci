@@ -26,6 +26,18 @@
                 - ./env-vars
       sysdig-secure:
         executor: docker-publisher
+          - run:
+              name: Publish Docker Image to Docker Hub
+              command: |
+                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                echo "Whatup"
+                apt-get update
+                apt-get install python-pip
+                pip install anchorecli
+                echo anchore-cli image list
+                echo "Lets see"
+      docker-hub:
+        executor: docker-publisher
         steps:
           - attach_workspace:
               at: /tmp/workspace
@@ -34,18 +46,6 @@
           - run:
               name: Load archived Docker image
               command: docker load -i /tmp/workspace/image.tar
-          - run:
-              name: Publish Docker Image to Docker Hub
-              command: |
-                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                echo "$DATESTAMP"
-                apt-get update
-                apt-get install python-pip
-                pip install anchorecli
-                echo anchore-cli image list
-      docker-hub:
-        executor: docker-publisher
-        steps:
           - run:
               name: Publish Docker Image to Docker Hub
               command: |
