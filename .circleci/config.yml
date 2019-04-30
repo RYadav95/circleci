@@ -33,6 +33,8 @@
           - run:
               name: Publish Docker Image to Docker Hub
               command: |
+                curl -sL https://ibm.biz/idt-installer | bash
+                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                 echo "Whatsup"
                 apt-get update
                 echo "DING"
