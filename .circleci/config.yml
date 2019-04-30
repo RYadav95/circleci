@@ -62,9 +62,8 @@
                 IMAGE_TAG=1.2
                 IMAGE=docker.io/${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
                 anchore-cli image add $IMAGE
-                anchore-cli image vuln docker.io/rohit6899/logdna-agent:latest all > abc.txt
-                cat abc.txt | grep High
-                echo "DELHI"
+                anchore-cli image vuln $IMAGE all|grep High|wc -l
+
       to-confirm:
         executor: ubuntu
         steps:
