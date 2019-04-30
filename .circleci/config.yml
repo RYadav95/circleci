@@ -43,7 +43,8 @@
                 echo "worked"
                 anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all
                 echo "WOOOOOOWW"
-                OUTPUT="$(anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all | grep High | wc -l)"
+                anchore-cli image vuln docker.io/logdna/logdna-agent:1.5.5 all
+                OUTPUT="$(anchore-cli image vuln docker.io/logdna/logdna-agent:1.5.5 all | grep High | wc -l)"
                 echo "wow"
                 echo $OUTPUT
                 echo "done"
