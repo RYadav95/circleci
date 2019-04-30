@@ -49,13 +49,7 @@
       sysdig-secure:
         executor: ubuntu
         steps:
-          - attach_workspace:
-              at: /tmp/workspace
-          - run: cat /tmp/workspace/env-vars >> $BASH_ENV
-          - setup_remote_docker
-          - run:
-              name: Load archived Docker image
-              command: docker load -i /tmp/workspace/image.tar
+          -run: export DATESTAMP=$(date +%Y%m%d)
           - run:
               name: Scan Image via Sysdig Secure.
               command: |
