@@ -5,6 +5,10 @@
           IMAGE_NAME: rohit6899/tracer1
         docker:
           - image: circleci/buildpack-deps:stretch
+    executors:
+      ubuntu:
+        docker:
+          - image: ubuntu:16.04
     jobs:
       build:
         executor: docker-publisher
@@ -25,15 +29,16 @@
                 - ./image.tar
                 - ./env-vars
       sysdig-secure:
-        executor: docker-publisher
+        executor: ubuntu
         steps:
           - run:
               name: Publish Docker Image to Docker Hub
               command: |
-                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
                 echo "Whatsup"
                 apt-get update
+                echo "DING"
                 apt-get install python-pip
+                echo "DONG"
                 pip install anchorecli
                 echo anchore-cli image list
                 echo "worked"
