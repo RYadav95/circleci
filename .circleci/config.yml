@@ -6,6 +6,8 @@
         docker:
           - image: circleci/buildpack-deps:stretch
       ubuntu:
+        environment:
+          IMAGE_NAME: rohit6899/tracer1
         docker:
           - image: ubuntu:16.04
     jobs:
@@ -27,38 +29,6 @@
               paths:
                 - ./image.tar
                 - ./env-vars
-      sysdig-secure:
-        executor: ubuntu
-        steps:
-          - run:
-              name: Publish Docker Image to Docker Hub
-              command: |
-                apt-get update
-                apt-get -y install curl
-                curl -sL https://ibm.biz/idt-installer | bash
-                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                echo "Whatsup"
-                echo "DING"
-                apt-get -y install python-pip
-                echo "DONG"
-                pip install anchorecli
-                anchore-cli image list
-                echo "worked"
-                anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all
-                echo "WOOOOOOWW"
-                anchore-cli image vuln docker.io/logdna/logdna-agent:1.5.5 all
-                OUTPUT="$(anchore-cli image vuln docker.io/logdna/logdna-agent:1.5.5 all | grep High | wc -l)"
-                echo "wow"
-                echo $OUTPUT
-                echo "done"
-                if [ $OUTPUT -gt 0 ]; then exit 3; else exit 0; fi
-      to-confirm:
-        executor: ubuntu
-        steps:
-          - run:
-              name: Test
-              command: |
-                echo "Whatsup"
       docker-hub:
         executor: docker-publisher
         steps:
@@ -72,64 +42,54 @@
           - run:
               name: Publish Docker Image to Docker Hub
               command: |
-                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                echo "$DATESTAMP"
-                IMAGE_TAG=${CIRCLE_TAG/v/''}
-                docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:$IMAGE_TAG
-                docker tag $IMAGE_NAME:latest $IMAGE_NAME:${IMAGE_TAG}-${DATESTAMP}
-                docker push ${IMAGE_NAME}:latest
-                docker push $IMAGE_NAME:$IMAGE_TAG
-                docker push $IMAGE_NAME:$IMAGE_TAG-${DATESTAMP}
-
-      ibm-registry:
-        executor: docker-publisher
+                echo "${DOCKERHUB_PASS}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+                IMAGE_TAG=1.2
+                docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
+                docker push ${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
+      sysdig-secure:
+        executor: ubuntu
         steps:
           - attach_workspace:
               at: /tmp/workspace
+          - run: cat /tmp/workspace/env-vars >> $BASH_ENV
           - setup_remote_docker
           - run:
               name: Load archived Docker image
               command: docker load -i /tmp/workspace/image.tar
           - run:
-              name: Publish Docker Image to IBM registry
+              name: Scan Image via Sysdig Secure.
               command: |
-                IMAGE_TAG=${CIRCLE_TAG/v/''}
-                echo "${IBM_API_KEY}" | docker login -u iamapikey --password-stdin icr.io
-                export DATESTAMP=$(date +%Y%m%d)
-                echo "Hello World"            
+                apt-get update
+                apt-get -y install python-pip
+                pip install anchorecli
+                IMAGE_TAG=1.2
+                IMAGE=docker.io/${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
+                anchore-cli image add $IMAGE
+                sleep 500
+                anchore-cli image vuln $IMAGE
+                OUTPUT="$(anchore-cli image vuln $IMAGE | grep High | wc -l)"
+                if [ $OUTPUT -gt 0 ]; then exit 1; else exit 0; fi
+      to-confirm:
+        executor: ubuntu
+        steps:
+          - run:
+              name: Test
+              command: |
+                echo "Victory"       
     workflows:
       version: 2
       build-tags:
         jobs:
           - build:
               filters:
-                tags:
-                  only: /.*/
                 branches:
-                  ignore: /.*/
+                  only: /.*/
           - docker-hub:
               requires:
                 - build
-              filters:
-                tags:
-                  only: /.*/
-                branches:
-                  ignore: /.*/
-          - ibm-registry:
-              requires:
-                - build
-              filters:
-                tags:
-                  only: /.*/
-                branches:
-                  ignore: /.*/
           - sysdig-secure:
-              filters:
-                branches:
-                  only: /.*/
+              requires:
+                - docker-hub
           - to-confirm:
               requires:
                 - sysdig-secure
-              filters:
-                branches:
-                  only: /.*/
