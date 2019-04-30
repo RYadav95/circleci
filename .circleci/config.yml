@@ -41,7 +41,7 @@
                 pip install anchorecli
                 anchore-cli image list
                 echo "worked"
-                vari = anchore-cli image vuln docker.io/logdna/logdna-agent:1.5.5 all | grep High | wc -l
+                vari = "$(anchore-cli image vuln docker.io/logdna/logdna-agent:1.5.5 all | grep High | wc -l)"
                 echo "wow"
                 echo $vari
                 echo "done"
