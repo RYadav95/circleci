@@ -41,11 +41,12 @@
                 pip install anchorecli
                 anchore-cli image list
                 echo "worked"
+                anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all
                 OUTPUT="$(anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all | grep High | wc -l)"
                 echo "wow"
                 echo $vOUTPUT
                 echo "done"
-                if [ $OUTPUT -gt 0 ]; then exit 1; else exit 0; fi
+                if [ $OUTPUT -gt 0 ]; then exit 24; else exit 0; fi
       to-confirm:
         executor: ubuntu
         steps:
