@@ -26,16 +26,17 @@
                 - ./env-vars
       sysdig-secure:
         executor: docker-publisher
+        steps:
           - run:
               name: Publish Docker Image to Docker Hub
               command: |
                 echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                echo "Whatup"
+                echo "Whatsup"
                 apt-get update
                 apt-get install python-pip
                 pip install anchorecli
                 echo anchore-cli image list
-                echo "Lets see"
+                echo "worked"
       docker-hub:
         executor: docker-publisher
         steps:
