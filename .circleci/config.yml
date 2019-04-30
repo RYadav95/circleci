@@ -49,7 +49,7 @@
       sysdig-secure:
         executor: ubuntu
         steps:
-          -run: export DATESTAMP=$(date +%Y%m%d)
+          - run: export DATESTAMP=$(date +%Y%m%d)
           - run:
               name: Scan Image via Sysdig Secure.
               command: |
