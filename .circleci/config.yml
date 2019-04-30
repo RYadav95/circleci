@@ -24,6 +24,25 @@
               paths:
                 - ./image.tar
                 - ./env-vars
+      sysdig-secure:
+        executor: docker-publisher
+        steps:
+          - attach_workspace:
+              at: /tmp/workspace
+          - run: cat /tmp/workspace/env-vars >> $BASH_ENV
+          - setup_remote_docker
+          - run:
+              name: Load archived Docker image
+              command: docker load -i /tmp/workspace/image.tar
+          - run:
+              name: Publish Docker Image to Docker Hub
+              command: |
+                echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                echo "$DATESTAMP"
+                apt-get update
+                apt-get install python-pip
+                pip install anchorecli
+                echo anchore-cli image list
       docker-hub:
         executor: docker-publisher
         steps:
@@ -88,3 +107,7 @@
                   only: /.*/
                 branches:
                   ignore: /.*/
+          - sysdig-secure:
+              filters:
+                branches:
+                  only: /.*/
