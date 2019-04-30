@@ -49,10 +49,11 @@
       sysdig-secure:
         executor: ubuntu
         steps:
-          - run: export DATESTAMP=$(date +%Y%m%d)
           - run:
               name: Scan Image via Sysdig Secure.
               command: |
+                export DATESTAMP=$(date +%Y%m%d)
+                echo $DATESTAMP
                 apt-get update
                 apt-get -y install python-pip
                 pip install anchorecli
@@ -74,16 +75,10 @@
       version: 2
       build-tags:
         jobs:
-          - build:
+          - sysdig-secure:
               filters:
                 branches:
                   only: /.*/
-          - docker-hub:
-              requires:
-                - build
-          - sysdig-secure:
-              requires:
-                - docker-hub
           - to-confirm:
               requires:
                 - sysdig-secure
