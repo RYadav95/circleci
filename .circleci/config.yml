@@ -58,6 +58,8 @@
                 apt-get -y install python-pip
                 pip install anchorecli
                 IMAGE_TAG=1.2
+                IMAGE_T=${CIRCLE_TAG/v/''}
+                echo $IMAGE_T
                 IMAGE=docker.io/${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
                 anchore-cli image add $IMAGE
                 sleep 50
