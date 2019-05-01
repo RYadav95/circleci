@@ -61,8 +61,7 @@
                 pip install anchorecli
                 IMAGE_TAG=1.2
                 IMAGE=docker.io/${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
-                anchore-cli image add $IMAGE
-                anchore-cli image vuln $IMAGE all
+                anchore-cli image vuln docker.io/rohit6899/tracer1:1.2-20190430 all
       to-confirm:
         executor: ubuntu
         steps:
