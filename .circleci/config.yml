@@ -60,10 +60,10 @@
                 IMAGE_TAG=1.2
                 IMAGE=docker.io/${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
                 anchore-cli image add $IMAGE
-                OUTPUT="$(anchore-cli image vuln $IMAGE all | awk '$3 ~ /High/' | wc -l)"
-                echo $OUTPUT
                 IMAGE_T=git describe --abbrev=0 --tags
                 echo $IMAGE_T
+                OUTPUT="$(anchore-cli image vuln $IMAGE all | awk '$3 ~ /High/' | wc -l)"
+                echo $OUTPUT
       to-confirm:
         executor: ubuntu
         steps:
