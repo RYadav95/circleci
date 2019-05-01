@@ -62,7 +62,7 @@
                 IMAGE_TAG=1.2
                 IMAGE=docker.io/${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
                 anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all
-                OUTPUT="$(anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all | grep High | wc -l)"
+                OUTPUT="$(anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all | wc -l)"
                 echo $OUTPUT
       to-confirm:
         executor: ubuntu
