@@ -54,31 +54,30 @@
               command: |
                 export DATESTAMP=$(date +%Y%m%d)
                 echo $DATESTAMP
-                IMAGE_T=${CIRCLE_TAG/v/''}
-                echo $IMAGE_T
                 apt-get update
                 apt-get -y install python-pip
                 pip install anchorecli
                 IMAGE_TAG=1.2
                 IMAGE=docker.io/${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
-                anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all
-                OUTPUT="$(anchore-cli image vuln docker.io/rohit6899/logdna-agent:secure all | awk '$3 ~ /Low/' | wc -l)"
+                anchore-cli image add $IMAGE
+                OUTPUT="$(anchore-cli image vuln $IMAGE all | awk '$3 ~ /High/' | wc -l)"
                 echo $OUTPUT
-      to-confirm:
-        executor: ubuntu
-        steps:
-          - run:
-              name: Test
-              command: |
-                echo "Victory"       
+                IMAGE_T=git describe --abbrev=0 --tags
+                echo $IMAGE_T
     workflows:
       version: 2
       build-tags:
         jobs:
-          - sysdig-secure:
+          - build:
               filters:
                 branches:
                   only: /.*/
+          - docker-hub:
+              requires:
+                - build
+          - sysdig-secure:
+              requires:
+                - docker-hub
           - to-confirm:
               requires:
                 - sysdig-secure
