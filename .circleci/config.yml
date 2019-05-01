@@ -64,6 +64,13 @@
                 echo $OUTPUT
                 IMAGE_T=git describe --abbrev=0 --tags
                 echo $IMAGE_T
+      to-confirm:
+        executor: ubuntu
+        steps:
+          - run:
+              name: Test
+              command: |
+                echo "Victory"       
     workflows:
       version: 2
       build-tags:
