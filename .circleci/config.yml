@@ -62,10 +62,8 @@
                 IMAGE_TAG=1.2
                 IMAGE=docker.io/${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
                 anchore-cli image vuln docker.io/rohit6899/tracer1:1.2-20190430 all
-                echo "WHATS"
-                KING="DELHI Belly"
-                echo $KING | grep EL
-                echo "NICE"
+                OUTPUT="$(anchore-cli image vuln $IMAGE all | grep High | wc -l)"
+                echo $OUTPUT
       to-confirm:
         executor: ubuntu
         steps:
