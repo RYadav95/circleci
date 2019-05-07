@@ -53,6 +53,7 @@
           - run:
               name: Scan Image via Sysdig Secure.
               command: |
+                echo $ANCHORE_CLI_URL
                 export DATESTAMP=$(date +%Y%m%d)
                 echo $DATESTAMP
                 apt-get update
