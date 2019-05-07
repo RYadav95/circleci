@@ -20,6 +20,7 @@
           - run:
               name: Build Docker image
               command: |
+                echo $ANCHORE_CLI_URL
                 docker build -t $IMAGE_NAME:latest .
           - run:
               name: Archive Docker image
@@ -60,7 +61,7 @@
                 IMAGE_TAG=1.2
                 IMAGE=docker.io/${IMAGE_NAME}:${IMAGE_TAG}-${DATESTAMP}
                 anchore-cli image add $IMAGE
-                IMAGE_T=git describe --abbrev=0 --tags
+                git describe --abbrev=0 --tags
                 echo $IMAGE_T
                 OUTPUT="$(anchore-cli image vuln $IMAGE all | awk '$3 ~ /High/' | wc -l)"
                 echo $OUTPUT
@@ -75,16 +76,10 @@
       version: 2
       build-tags:
         jobs:
-          - build:
+          - sysdig-secure:
               filters:
                 branches:
                   only: /.*/
-          - docker-hub:
-              requires:
-                - build
-          - sysdig-secure:
-              requires:
-                - docker-hub
           - to-confirm:
               requires:
                 - sysdig-secure
